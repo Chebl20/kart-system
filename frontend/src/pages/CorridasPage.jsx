@@ -1,9 +1,11 @@
 import React, { useState, useEffect } from 'react';
 import { getCorridas, criarCorrida, deletarCorrida, editarCorrida } from '../services/api';
 import { Card, Button, Input, Select } from '../components/Layout';
+import { useAuth } from '../context/AuthContext.jsx';
 import '../styles/pages.css';
 
 export const CorridasPage = () => {
+  const { isAdmin } = useAuth();
   const [corridas, setCorridas] = useState([]);
   const [formData, setFormData] = useState({ nome: '', data: '', categoria: 'SPRINT' });
   const [loading, setLoading] = useState(true);
@@ -92,47 +94,52 @@ export const CorridasPage = () => {
       </div>
 
       <div className="page-content grid-2">
-        {/* Formulário de Cadastro */}
         <Card className="form-card">
           <h3>{editingId ? 'Editar Corrida' : 'Nova Corrida'}</h3>
-          <form onSubmit={handleSubmit} className="form">
-            <Input
-              label="Nome da Corrida"
-              value={formData.nome}
-              onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-              placeholder="EX: Monza Grand Prix"
-            />
-            <Input
-              label="Data do Evento"
-              type="date"
-              value={formData.data}
-              onChange={(e) => setFormData({ ...formData, data: e.target.value })}
-            />
-            <Select
-              label="Categoria"
-              value={formData.categoria}
-              onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
-              options={categorias}
-            />
-            {error && <div className="error-message">{error}</div>}
-            <div style={{ display: 'flex', gap: '10px' }}>
-              <Button type="submit" variant="primary" style={{ flex: 1 }}>
-                {editingId ? 'Atualizar' : 'Criar'} Corrida
-              </Button>
-              {editingId && (
-                <Button
-                  type="button"
-                  variant="secondary"
-                  onClick={() => {
-                    setFormData({ nome: '', data: '', categoria: 'SPRINT' });
-                    setEditingId(null);
-                  }}
-                >
-                  Cancelar
+          {isAdmin ? (
+            <form onSubmit={handleSubmit} className="form">
+              <Input
+                label="Nome da Corrida"
+                value={formData.nome}
+                onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
+                placeholder="EX: Monza Grand Prix"
+              />
+              <Input
+                label="Data do Evento"
+                type="date"
+                value={formData.data}
+                onChange={(e) => setFormData({ ...formData, data: e.target.value })}
+              />
+              <Select
+                label="Categoria"
+                value={formData.categoria}
+                onChange={(e) => setFormData({ ...formData, categoria: e.target.value })}
+                options={categorias}
+              />
+              {error && <div className="error-message">{error}</div>}
+              <div style={{ display: 'flex', gap: '10px' }}>
+                <Button type="submit" variant="primary" style={{ flex: 1 }}>
+                  {editingId ? 'Atualizar' : 'Criar'} Corrida
                 </Button>
-              )}
-            </div>
-          </form>
+                {editingId && (
+                  <Button
+                    type="button"
+                    variant="secondary"
+                    onClick={() => {
+                      setFormData({ nome: '', data: '', categoria: 'SPRINT' });
+                      setEditingId(null);
+                    }}
+                  >
+                    Cancelar
+                  </Button>
+                )}
+              </div>
+            </form>
+          ) : (
+            <p className="readonly-hint">
+              Faça login como administrador para criar, editar ou excluir corridas.
+            </p>
+          )}
         </Card>
 
         {/* Lista de Corridas */}
@@ -151,7 +158,7 @@ export const CorridasPage = () => {
                     <th>Nome</th>
                     <th>Categoria</th>
                     <th>Pilotos</th>
-                    <th>Ações</th>
+                    {isAdmin && <th>Ações</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -161,22 +168,24 @@ export const CorridasPage = () => {
                       <td className="corrida-nome">{corrida.nome}</td>
                       <td><span className="badge">{corrida.categoria}</span></td>
                       <td>{corrida.total_pilotos || 0}</td>
-                      <td className="actions">
-                        <button
-                          className="btn-icon edit"
-                          onClick={() => handleEdit(corrida)}
-                          title="Editar corrida"
-                        >
-                          <span className="material-symbols-outlined">edit</span>
-                        </button>
-                        <button
-                          className="btn-icon delete"
-                          onClick={() => handleDeleteCorrida(corrida.id)}
-                          title="Deletar corrida"
-                        >
-                          <span className="material-symbols-outlined">delete</span>
-                        </button>
-                      </td>
+                      {isAdmin && (
+                        <td className="actions">
+                          <button
+                            className="btn-icon edit"
+                            onClick={() => handleEdit(corrida)}
+                            title="Editar corrida"
+                          >
+                            <span className="material-symbols-outlined">edit</span>
+                          </button>
+                          <button
+                            className="btn-icon delete"
+                            onClick={() => handleDeleteCorrida(corrida.id)}
+                            title="Deletar corrida"
+                          >
+                            <span className="material-symbols-outlined">delete</span>
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>

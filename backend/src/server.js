@@ -1,6 +1,7 @@
 import express from 'express';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+import authRoutes from './routes/auth.js';
 import pilotosRoutes from './routes/pilotos.js';
 import corridasRoutes from './routes/corridas.js';
 import resultadosRoutes from './routes/resultados.js';
@@ -18,6 +19,9 @@ app.get('/api/health', (req, res) => {
   res.json({ status: 'OK', message: 'API está funcionando' });
 });
 
+// Autenticação (login público)
+app.use('/api/auth', authRoutes);
+
 // Rotas da API
 app.use('/api/pilotos', pilotosRoutes);
 app.use('/api/corridas', corridasRoutes);
@@ -28,8 +32,8 @@ app.use((req, res) => {
   res.status(404).json({ erro: 'Rota não encontrada' });
 });
 
-// Iniciar servidor
-app.listen(PORT, () => {
+// Iniciar servidor (0.0.0.0 para Docker)
+app.listen(PORT, '0.0.0.0', () => {
   console.log(`\n🏎️  SERVIDOR KART SYSTEM INICIADO`);
   console.log(`✓ Porta: ${PORT}`);
   console.log(`✓ Acesse em: http://localhost:${PORT}`);

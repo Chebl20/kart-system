@@ -1,11 +1,8 @@
 import sqlite3 from 'sqlite3';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import path from 'path';
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-
-const DATABASE_PATH = './kart.db';
+const DATABASE_PATH =
+  process.env.DATABASE_PATH || path.join(process.cwd(), 'kart.db');
 
 // Abre a conexão com o banco de dados
 export const db = new sqlite3.Database(DATABASE_PATH, (err) => {

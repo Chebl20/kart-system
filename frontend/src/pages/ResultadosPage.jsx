@@ -1,16 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { 
-  getCorridas, 
-  getPilotos, 
-  adicionarResultado, 
-  editarResultado,
+import {
+  getCorridas,
+  getPilotos,
+  adicionarResultado,
   deletarResultado,
   getCorridaById
 } from '../services/api';
 import { Card, Button, Input, Select } from '../components/Layout';
+import { useAuth } from '../context/AuthContext.jsx';
 import '../styles/pages.css';
 
 export const ResultadosPage = () => {
+  const { isAdmin } = useAuth();
   const [corridas, setCorridas] = useState([]);
   const [pilotos, setPilotos] = useState([]);
   const [corridaSelecionada, setCorridaSelecionada] = useState('');
@@ -111,6 +112,61 @@ export const ResultadosPage = () => {
         </div>
       </div>
 
+      {!isAdmin ? (
+        <div className="page-content">
+          <Card className="form-card">
+            <h3>Consultar resultados</h3>
+            <p className="readonly-hint">
+              Faça login como administrador para registrar ou alterar posições e pontos dos participantes.
+            </p>
+            <div className="form">
+              <Select
+                label="Selecione a Corrida"
+                value={corridaSelecionada}
+                onChange={(e) => setCorridaSelecionada(e.target.value)}
+                options={corridas.map((c) => ({ id: c.id, label: c.nome }))}
+              />
+            </div>
+            {error && <div className="error-message">{error}</div>}
+          </Card>
+          <Card className="table-card">
+            <h3>Resultados da Corrida</h3>
+            {!corridaSelecionada ? (
+              <div className="empty-state">Selecione uma corrida para ver os resultados</div>
+            ) : loading ? (
+              <div className="loading">Carregando...</div>
+            ) : resultados.length === 0 ? (
+              <div className="empty-state">Nenhum resultado registrado para esta corrida</div>
+            ) : (
+              <div className="table-container">
+                <table>
+                  <thead>
+                    <tr>
+                      <th>Posição</th>
+                      <th>Piloto</th>
+                      <th>Pontos</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {resultados.map((resultado) => (
+                      <tr key={resultado.id}>
+                        <td className="posicao">
+                          <strong>{resultado.posicao}º</strong>
+                        </td>
+                        <td>{resultado.piloto_nome}</td>
+                        <td>
+                          <strong>{resultado.pontos} pts</strong>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </Card>
+        </div>
+      ) : (
+      <>
       {/* Seletor de Modo */}
       <div className="modo-selector" style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
         <button 
@@ -411,6 +467,8 @@ export const ResultadosPage = () => {
             )}
           </Card>
         </div>
+      )}
+      </>
       )}
     </div>
   );

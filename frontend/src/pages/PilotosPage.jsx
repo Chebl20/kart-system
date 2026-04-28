@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { getPilotos, criarPiloto, deletarPiloto } from '../services/api';
 import { Card, Button, Input } from '../components/Layout';
+import { useAuth } from '../context/AuthContext.jsx';
+import { GRID_CAPACITY } from '../constants/grid';
 import '../styles/pages.css';
 
 export const PilotosPage = () => {
+  const { isAdmin } = useAuth();
   const [pilotos, setPilotos] = useState([]);
   const [novoNome, setNovoNome] = useState('');
   const [loading, setLoading] = useState(true);
@@ -69,28 +72,38 @@ export const PilotosPage = () => {
           </div>
           <div className="stat-box">
             <span className="stat-label">Vagas Livres</span>
-            <span className="stat-value">08</span>
+            <span className="stat-value">
+              {(() => {
+                const v = Math.max(0, GRID_CAPACITY - pilotos.length);
+                return v >= 100 ? v : String(v).padStart(2, '0');
+              })()}
+            </span>
           </div>
         </div>
       </div>
 
       <div className="page-content grid-2">
-        {/* Formulário de Cadastro */}
         <Card className="form-card">
           <h3>Novo Cadastro</h3>
-          <form onSubmit={handleCriarPiloto} className="form">
-            <Input
-              label="Nome Completo"
-              value={novoNome}
-              onChange={(e) => setNovoNome(e.target.value)}
-              placeholder="EX: AYRTON SENNA"
-            />
-            {error && <div className="error-message">{error}</div>}
-            <Button type="submit" variant="primary">
-              <span className="material-symbols-outlined">add_circle</span>
-              Confirmar Registro
-            </Button>
-          </form>
+          {isAdmin ? (
+            <form onSubmit={handleCriarPiloto} className="form">
+              <Input
+                label="Nome Completo"
+                value={novoNome}
+                onChange={(e) => setNovoNome(e.target.value)}
+                placeholder="EX: AYRTON SENNA"
+              />
+              {error && <div className="error-message">{error}</div>}
+              <Button type="submit" variant="primary">
+                <span className="material-symbols-outlined">add_circle</span>
+                Confirmar Registro
+              </Button>
+            </form>
+          ) : (
+            <p className="readonly-hint">
+              Faça login como administrador (usuário <strong>admin</strong>) para cadastrar ou remover pilotos.
+            </p>
+          )}
         </Card>
 
         {/* Lista de Pilotos */}
@@ -109,7 +122,7 @@ export const PilotosPage = () => {
                     <th>Piloto</th>
                     <th>Pontos</th>
                     <th>Corridas</th>
-                    <th>Ações</th>
+                    {isAdmin && <th>Ações</th>}
                   </tr>
                 </thead>
                 <tbody>
@@ -119,15 +132,17 @@ export const PilotosPage = () => {
                       <td className="piloto">{piloto.nome}</td>
                       <td>{piloto.pontos}</td>
                       <td>{piloto.corridas_participadas || 0}</td>
-                      <td className="actions">
-                        <button
-                          className="btn-icon delete"
-                          onClick={() => handleDeletarPiloto(piloto.id)}
-                          title="Deletar piloto"
-                        >
-                          <span className="material-symbols-outlined">delete</span>
-                        </button>
-                      </td>
+                      {isAdmin && (
+                        <td className="actions">
+                          <button
+                            className="btn-icon delete"
+                            onClick={() => handleDeletarPiloto(piloto.id)}
+                            title="Deletar piloto"
+                          >
+                            <span className="material-symbols-outlined">delete</span>
+                          </button>
+                        </td>
+                      )}
                     </tr>
                   ))}
                 </tbody>

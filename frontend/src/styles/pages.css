@@ -387,6 +387,13 @@ tbody tr:hover .actions {
   font-size: 13px;
 }
 
+.readonly-hint {
+  color: rgba(255, 255, 255, 0.65);
+  font-size: 14px;
+  line-height: 1.55;
+  margin: 0;
+}
+
 /* Responsive */
 @media (max-width: 1024px) {
   .historico-container {
