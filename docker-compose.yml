@@ -7,15 +7,11 @@ services:
       MONGO_INITDB_DATABASE: kart
     volumes:
       - mongodb_data:/data/db
-    ports:
-      - "27017:27017"
 
   backend:
     build: ./backend
     container_name: kart-backend
     restart: unless-stopped
-    ports:
-      - "5000:5000"
     environment:
       MONGODB_URI: mongodb://mongodb:27017/kart
       MONGODB_DB: kart
@@ -34,8 +30,6 @@ services:
         VITE_API_BASE_URL: /api
     container_name: kart-frontend
     restart: unless-stopped
-    ports:
-      - "3000:80"
     depends_on:
       - backend
 
