@@ -23,7 +23,7 @@ function App() {
       case 'historico':
         return <HistoricoPage />;
       default:
-        return <Dashboard />;
+        return <Dashboard setActiveMenu={setActiveMenu} />;
     }
   };
 
@@ -52,7 +52,7 @@ function App() {
   );
 }
 
-const Dashboard = () => (
+const Dashboard = ({ setActiveMenu }) => (
   <div className="page-container">
     <div className="page-header">
       <div>
@@ -61,19 +61,19 @@ const Dashboard = () => (
       </div>
     </div>
     <div className="dashboard-grid">
-      <div className="dashboard-card">
+      <div className="dashboard-card" onClick={() => setActiveMenu('ranking')}>
         <h3>Estatísticas Gerais</h3>
         <p>Acompanhe o desempenho do campeonato em tempo real</p>
       </div>
-      <div className="dashboard-card">
+      <div className="dashboard-card" onClick={() => setActiveMenu('corridas')}>
         <h3>Próximas Corridas</h3>
         <p>Consulte o calendário de eventos</p>
       </div>
-      <div className="dashboard-card">
+      <div className="dashboard-card" onClick={() => setActiveMenu('ranking')}>
         <h3>Ranking Atual</h3>
         <p>Veja a posição dos pilotos</p>
       </div>
-      <div className="dashboard-card">
+      <div className="dashboard-card" onClick={() => setActiveMenu('pilotos')}>
         <h3>Gerenciamento</h3>
         <p>Cadastre pilotos, corridas e resultados</p>
       </div>

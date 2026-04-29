@@ -239,6 +239,94 @@ tbody tr:hover .actions {
   margin-bottom: 20px;
 }
 
+/* Ranking Table Specific Styles */
+.ranking-table-card table {
+  table-layout: fixed;
+}
+
+.ranking-table-card thead th:first-child {
+  width: 60px;
+  text-align: center;
+}
+
+.ranking-table-card thead th:nth-child(2) {
+  width: 200px;
+}
+
+.ranking-table-card thead th:nth-child(3) {
+  width: 80px;
+  text-align: center;
+}
+
+.ranking-table-card thead th:nth-child(4),
+.ranking-table-card thead th:nth-child(5),
+.ranking-table-card thead th:nth-child(6),
+.ranking-table-card thead th:nth-child(7) {
+  width: 70px;
+  text-align: center;
+}
+
+.ranking-table-card thead th:last-child {
+  width: 80px;
+  text-align: center;
+}
+
+.ranking-table-card tbody td {
+  padding: 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.ranking-table-card tbody td:first-child {
+  text-align: center;
+}
+
+.ranking-table-card tbody td:nth-child(2) {
+  text-align: left;
+}
+
+.ranking-table-card tbody td:nth-child(3) {
+  text-align: center;
+}
+
+.rank-position {
+  font-size: 16px;
+  color: #E10600;
+  font-weight: bold;
+}
+
+.pilot-name {
+  font-weight: bold;
+  text-align: left;
+}
+
+.points {
+  font-size: 16px;
+  color: #E10600;
+  font-weight: bold;
+}
+
+.stat {
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.best {
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: bold;
+}
+
+.podium-first {
+  background: rgba(255, 215, 0, 0.1);
+}
+
+.podium-second {
+  background: rgba(192, 192, 192, 0.1);
+}
+
+.podium-third {
+  background: rgba(205, 127, 50, 0.1);
+}
+
 /* Histórico Page */
 .historico-container {
   display: grid;
