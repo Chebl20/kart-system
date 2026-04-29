@@ -115,8 +115,8 @@ export const CorridasPage = () => {
                 options={categorias}
               />
               {error && <div className="error-message">{error}</div>}
-              <div style={{ display: 'flex', gap: '10px' }}>
-                <Button type="submit" variant="primary" style={{ flex: 1 }}>
+              <div className="form-actions-row">
+                <Button type="submit" variant="primary">
                   {editingId ? 'Atualizar' : 'Criar'} Corrida
                 </Button>
                 {editingId && (

@@ -167,39 +167,21 @@ export const ResultadosPage = () => {
         </div>
       ) : (
       <>
-      {/* Seletor de Modo */}
-      <div className="modo-selector" style={{ marginBottom: '20px', display: 'flex', gap: '10px' }}>
-        <button 
-          className={`mode-btn ${modo === 'rapido' ? 'active' : ''}`}
+      {/* Mode toggle: stacked on narrow screens so each control stays ≥44px tap height */}
+      <div className="modo-selector" role="group" aria-label="Modo de entrada de resultados">
+        <button
+          type="button"
+          className={`mode-btn mode-btn--primary ${modo === 'rapido' ? 'active' : ''}`}
           onClick={() => setModo('rapido')}
-          style={{
-            padding: '10px 20px',
-            border: '2px solid #E10600',
-            background: modo === 'rapido' ? '#E10600' : 'transparent',
-            color: modo === 'rapido' ? '#fff' : '#E10600',
-            cursor: 'pointer',
-            borderRadius: '4px',
-            fontWeight: 'bold',
-            transition: 'all 0.3s'
-          }}
         >
-          ⚡ Modo Rápido (Todos de uma vez)
+          Modo rápido (todos de uma vez)
         </button>
-        <button 
-          className={`mode-btn ${modo === 'individual' ? 'active' : ''}`}
+        <button
+          type="button"
+          className={`mode-btn mode-btn--neutral ${modo === 'individual' ? 'active' : ''}`}
           onClick={() => setModo('individual')}
-          style={{
-            padding: '10px 20px',
-            border: '2px solid #25252D',
-            background: modo === 'individual' ? '#25252D' : 'transparent',
-            color: modo === 'individual' ? '#E10600' : '#25252D',
-            cursor: 'pointer',
-            borderRadius: '4px',
-            fontWeight: 'bold',
-            transition: 'all 0.3s'
-          }}
         >
-          ➕ Um por Um
+          Um por um
         </button>
       </div>
 
@@ -207,8 +189,8 @@ export const ResultadosPage = () => {
       {modo === 'rapido' && (
         <div className="page-content">
           <Card className="form-card">
-            <h3>✨ Modo Rápido - Adicione todos os resultados de uma vez</h3>
-            
+            <h3>Modo rápido — adicione todos os resultados de uma vez</h3>
+
             <form onSubmit={handleAdicionarResultadosRapido} className="form">
               <Select
                 label="Selecione a Corrida"
@@ -219,42 +201,34 @@ export const ResultadosPage = () => {
 
               {corridaSelecionada && (
                 <>
-                  <div style={{ marginTop: '20px', marginBottom: '20px', padding: '15px', background: '#15151E', borderRadius: '4px', border: '1px solid #25252D' }}>
-                    <h4 style={{ marginBottom: '15px' }}>Pilotos Disponíveis - Atribua as Posições</h4>
-                    
-                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))', gap: '12px' }}>
+                  <div className="resultados-panel">
+                    <h4 className="resultados-panel__title">Pilotos disponíveis — atribua as posições</h4>
+
+                    <div className="resultados-piloto-grid">
                       {pilotosDisponiveis.length === 0 ? (
-                        <div style={{ gridColumn: '1/-1', textAlign: 'center', color: '#666', padding: '20px' }}>
-                          ℹ️ Todos os pilotos já foram adicionados nesta corrida
+                        <div className="resultados-empty-hint">
+                          Todos os pilotos já foram adicionados nesta corrida
                         </div>
                       ) : (
                         pilotosDisponiveis.map((piloto) => (
-                          <div key={piloto.id} style={{
-                            display: 'flex',
-                            alignItems: 'center',
-                            gap: '10px',
-                            padding: '12px',
-                            background: '#0a0a0e',
-                            border: '1px solid #25252D',
-                            borderRadius: '4px'
-                          }}>
-                            <div style={{ flex: 1 }}>
-                              <div style={{ fontSize: '14px', fontWeight: '500' }}>{piloto.nome}</div>
-                              <div style={{ fontSize: '12px', color: '#999' }}>{piloto.pontos || 0} pts</div>
+                          <div key={piloto.id} className="resultados-piloto-row">
+                            <div className="resultados-piloto-row__meta">
+                              <div className="resultados-piloto-row__name">{piloto.nome}</div>
+                              <div className="resultados-piloto-row__pts">{piloto.pontos || 0} pts</div>
                             </div>
                             <input
                               type="number"
                               min="1"
                               max="100"
                               placeholder="Pos"
+                              className={`resultados-pos-input${resultadosRapido[piloto.id] ? ' resultados-pos-input--filled' : ''}`}
                               value={resultadosRapido[piloto.id] || ''}
                               onChange={(e) => {
                                 const posicao = e.target.value;
                                 const posicaoInt = posicao ? parseInt(posicao) : '';
-                                
-                                // Validar se a posição já foi usada
+
                                 const jaUsada = posicoesCupadas.includes(posicaoInt) && resultadosRapido[piloto.id] !== posicaoInt;
-                                
+
                                 if (!jaUsada) {
                                   setResultadosRapido({
                                     ...resultadosRapido,
@@ -265,17 +239,6 @@ export const ResultadosPage = () => {
                                   setTimeout(() => setError(''), 3000);
                                 }
                               }}
-                              style={{
-                                width: '60px',
-                                padding: '8px',
-                                background: '#15151E',
-                                border: resultadosRapido[piloto.id] ? '2px solid #E10600' : '1px solid #25252D',
-                                color: '#fff',
-                                borderRadius: '4px',
-                                fontSize: '16px',
-                                fontWeight: 'bold',
-                                textAlign: 'center'
-                              }}
                             />
                           </div>
                         ))
@@ -283,11 +246,12 @@ export const ResultadosPage = () => {
                     </div>
                   </div>
 
-                  {/* Resumo dos Resultados */}
                   {Object.keys(resultadosRapido).length > 0 && (
-                    <div style={{ marginTop: '20px', padding: '15px', background: '#15151E', borderRadius: '4px', border: '1px solid #25252D' }}>
-                      <h4 style={{ marginBottom: '12px' }}>📋 Resumo ({Object.keys(resultadosRapido).length} pilotos)</h4>
-                      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '10px' }}>
+                    <div className="resultados-resumo">
+                      <h4 className="resultados-resumo__title">
+                        Resumo ({Object.keys(resultadosRapido).length} pilotos)
+                      </h4>
+                      <div className="resultados-resumo-grid">
                         {Object.entries(resultadosRapido)
                           .filter(([_, posicao]) => posicao)
                           .sort(([_a, posA], [_b, posB]) => parseInt(posA) - parseInt(posB))
@@ -295,16 +259,10 @@ export const ResultadosPage = () => {
                             const piloto = pilotos.find((p) => String(p.id) === String(pilotoId));
                             const pontos = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1][parseInt(posicao) - 1] || 0;
                             return (
-                              <div key={pilotoId} style={{
-                                padding: '10px',
-                                background: '#0a0a0e',
-                                border: '1px solid #E10600',
-                                borderRadius: '4px',
-                                textAlign: 'center'
-                              }}>
-                                <div style={{ fontSize: '18px', fontWeight: 'bold', color: '#E10600' }}>{posicao}º</div>
-                                <div style={{ fontSize: '12px' }}>{piloto?.nome}</div>
-                                <div style={{ fontSize: '13px', fontWeight: 'bold', color: '#FFD700', marginTop: '4px' }}>{pontos} pts</div>
+                              <div key={pilotoId} className="resultados-resumo-item">
+                                <div className="resultados-resumo-item__pos">{posicao}º</div>
+                                <div className="resultados-resumo-item__name">{piloto?.nome}</div>
+                                <div className="resultados-resumo-item__pts">{pontos} pts</div>
                               </div>
                             );
                           })}
@@ -312,15 +270,15 @@ export const ResultadosPage = () => {
                     </div>
                   )}
 
-                  {error && <div className="error-message" style={{ marginTop: '15px' }}>{error}</div>}
+                  {error && <div className="error-message error-message--mt">{error}</div>}
 
-                  <Button 
-                    type="submit" 
+                  <Button
+                    type="submit"
                     variant="primary"
-                    style={{ marginTop: '20px', width: '100%' }}
+                    className="btn--block btn--block-spaced"
                   >
                     <span className="material-symbols-outlined">check_circle</span>
-                    Confirmar Todos ({Object.keys(resultadosRapido).filter(k => resultadosRapido[k]).length})
+                    Confirmar todos ({Object.keys(resultadosRapido).filter(k => resultadosRapido[k]).length})
                   </Button>
                 </>
               )}
@@ -378,7 +336,7 @@ export const ResultadosPage = () => {
       {modo === 'individual' && (
         <div className="page-content grid-2">
           <Card className="form-card">
-            <h3>➕ Adicionar Um por Um</h3>
+            <h3>Adicionar um por um</h3>
             <form onSubmit={handleAdicionarResultadosRapido} className="form">
               <Select
                 label="Selecione a Corrida"

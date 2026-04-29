@@ -1,14 +1,57 @@
-import React, { useState } from 'react';
+import React, { useState, lazy, Suspense, useEffect } from 'react';
 import { SideNavBar, TopAppBar } from './components/Layout';
-import { PilotosPage } from './pages/PilotosPage';
-import { CorridasPage } from './pages/CorridasPage';
-import { ResultadosPage } from './pages/ResultadosPage';
-import { RankingPage } from './pages/RankingPage';
-import { HistoricoPage } from './pages/HistoricoPage';
 import './styles/App.css';
+
+/**
+ * Route views are lazy-loaded so the initial JS payload stays smaller on mobile networks.
+ * `mobileNavOpen` drives the off-canvas sidebar; desktop (≥900px) keeps the sidebar fixed and ignores transform.
+ */
+const PilotosPage = lazy(() =>
+  import('./pages/PilotosPage').then((m) => ({ default: m.PilotosPage }))
+);
+const CorridasPage = lazy(() =>
+  import('./pages/CorridasPage').then((m) => ({ default: m.CorridasPage }))
+);
+const ResultadosPage = lazy(() =>
+  import('./pages/ResultadosPage').then((m) => ({ default: m.ResultadosPage }))
+);
+const RankingPage = lazy(() =>
+  import('./pages/RankingPage').then((m) => ({ default: m.RankingPage }))
+);
+const HistoricoPage = lazy(() =>
+  import('./pages/HistoricoPage').then((m) => ({ default: m.HistoricoPage }))
+);
+
+function PageFallback() {
+  return (
+    <div className="page-container">
+      <div className="loading" role="status" aria-live="polite">
+        Carregando…
+      </div>
+    </div>
+  );
+}
 
 function App() {
   const [activeMenu, setActiveMenu] = useState('dashboard');
+  const [mobileNavOpen, setMobileNavOpen] = useState(false);
+
+  const closeMobileNav = () => setMobileNavOpen(false);
+
+  /* Prevent background scroll while the mobile drawer is open (iOS / Android). */
+  useEffect(() => {
+    if (mobileNavOpen) {
+      document.body.classList.add('nav-drawer-open');
+    } else {
+      document.body.classList.remove('nav-drawer-open');
+    }
+    return () => document.body.classList.remove('nav-drawer-open');
+  }, [mobileNavOpen]);
+
+  const handleSetActiveMenu = (id) => {
+    setActiveMenu(id);
+    closeMobileNav();
+  };
 
   const renderPage = () => {
     switch (activeMenu) {
@@ -23,7 +66,7 @@ function App() {
       case 'historico':
         return <HistoricoPage />;
       default:
-        return <Dashboard setActiveMenu={setActiveMenu} />;
+        return <Dashboard setActiveMenu={handleSetActiveMenu} />;
     }
   };
 
@@ -40,12 +83,21 @@ function App() {
   };
 
   return (
-    <div className="app">
-      <SideNavBar activeMenu={activeMenu} setActiveMenu={setActiveMenu} />
+    <div className={`app${mobileNavOpen ? ' app--nav-open' : ''}`}>
+      <SideNavBar
+        activeMenu={activeMenu}
+        setActiveMenu={handleSetActiveMenu}
+        mobileNavOpen={mobileNavOpen}
+        onCloseMobileNav={closeMobileNav}
+      />
       <div className="main-content">
-        <TopAppBar title={getPageTitle()} />
+        <TopAppBar
+          title={getPageTitle()}
+          mobileNavOpen={mobileNavOpen}
+          onToggleMobileNav={() => setMobileNavOpen((open) => !open)}
+        />
         <div className="page-wrapper">
-          {renderPage()}
+          <Suspense fallback={<PageFallback />}>{renderPage()}</Suspense>
         </div>
       </div>
     </div>

@@ -2,7 +2,12 @@ import React, { useState } from 'react';
 import { useAuth } from '../context/AuthContext.jsx';
 import '../styles/components.css';
 
-export const SideNavBar = ({ activeMenu, setActiveMenu }) => {
+export const SideNavBar = ({
+  activeMenu,
+  setActiveMenu,
+  mobileNavOpen,
+  onCloseMobileNav
+}) => {
   const menuItems = [
     { id: 'dashboard', label: 'Dashboard', icon: 'speed' },
     { id: 'pilotos', label: 'Pilotos', icon: 'person_add' },
@@ -12,40 +17,69 @@ export const SideNavBar = ({ activeMenu, setActiveMenu }) => {
   ];
 
   return (
-    <aside className="sidebar">
-      <div className="sidebar-header">
-        <div className="logo">A</div>
-        <div>
-          <h1>Apex Kart</h1>
-          <p>Telemetry Hub</p>
+    <>
+      {/* Mobile: tap outside to close. Desktop: backdrop not shown (see CSS). */}
+      <button
+        type="button"
+        className="sidebar-backdrop"
+        aria-label="Fechar menu"
+        tabIndex={mobileNavOpen ? 0 : -1}
+        onClick={onCloseMobileNav}
+      />
+      <aside
+        className={`sidebar ${mobileNavOpen ? 'sidebar--open' : ''}`}
+        id="app-sidebar"
+        aria-label="Navegação principal"
+      >
+        <div className="sidebar-header">
+          <div className="logo">A</div>
+          <div>
+            <h1>Apex Kart</h1>
+            <p>Telemetry Hub</p>
+          </div>
         </div>
-      </div>
 
-      <nav className="sidebar-nav">
-        {menuItems.map(item => (
+        <nav className="sidebar-nav" aria-label="Seções">
+          {menuItems.map((item) => (
+            <button
+              key={item.id}
+              type="button"
+              className={`nav-item ${activeMenu === item.id ? 'active' : ''}`}
+              onClick={() => setActiveMenu(item.id)}
+            >
+              <span className="material-symbols-outlined" aria-hidden>
+                {item.icon}
+              </span>
+              {item.label}
+            </button>
+          ))}
+        </nav>
+
+        <div className="sidebar-footer">
           <button
-            key={item.id}
-            className={`nav-item ${activeMenu === item.id ? 'active' : ''}`}
-            onClick={() => setActiveMenu(item.id)}
+            type="button"
+            className="btn-new-race"
+            onClick={() => {
+              setActiveMenu('corridas');
+            }}
           >
-            <span className="material-symbols-outlined">{item.icon}</span>
-            {item.label}
+            Novo Evento
           </button>
-        ))}
-      </nav>
-
-      <div className="sidebar-footer">
-        <button className="btn-new-race">Novo Evento</button>
-        <div className="sidebar-links">
-          <a href="#history">Histórico</a>
-          <a href="#settings">Configurações</a>
+          <div className="sidebar-links">
+            <button type="button" className="sidebar-footer-link" onClick={() => setActiveMenu('historico')}>
+              Histórico
+            </button>
+            <a href="#settings" className="sidebar-footer-link" onClick={onCloseMobileNav}>
+              Configurações
+            </a>
+          </div>
         </div>
-      </div>
-    </aside>
+      </aside>
+    </>
   );
 };
 
-export const TopAppBar = ({ title }) => {
+export const TopAppBar = ({ title, mobileNavOpen, onToggleMobileNav }) => {
   const { isAdmin, username, login, logout } = useAuth();
   const [open, setOpen] = useState(false);
   const [loginUser, setLoginUser] = useState('admin');
@@ -67,14 +101,33 @@ export const TopAppBar = ({ title }) => {
   return (
     <>
       <header className="top-app-bar">
-        <div className="breadcrumb">
-          <span className="breadcrumb-section">Management</span>
-          <span className="breadcrumb-separator">/</span>
-          <span className="breadcrumb-current">{title}</span>
+        <div className="top-app-bar__leading">
+          <button
+            type="button"
+            className="menu-toggle"
+            aria-controls="app-sidebar"
+            aria-expanded={Boolean(mobileNavOpen)}
+            aria-label={mobileNavOpen ? 'Fechar menu de navegação' : 'Abrir menu de navegação'}
+            onClick={onToggleMobileNav}
+          >
+            <span className="material-symbols-outlined menu-toggle__icon" aria-hidden>
+              {mobileNavOpen ? 'close' : 'menu'}
+            </span>
+          </button>
+          <div className="breadcrumb">
+            <span className="breadcrumb-section">Management</span>
+            <span className="breadcrumb-separator" aria-hidden>
+              /
+            </span>
+            <span className="breadcrumb-current">{title}</span>
+          </div>
         </div>
         <div className="app-bar-actions">
           <div className="search-box">
-            <input type="text" placeholder="Search..." />
+            <label htmlFor="app-search" className="visually-hidden">
+              Buscar
+            </label>
+            <input id="app-search" type="search" placeholder="Search…" autoComplete="off" />
           </div>
           {isAdmin ? (
             <div className="auth-toolbar">
@@ -84,29 +137,25 @@ export const TopAppBar = ({ title }) => {
               </button>
             </div>
           ) : (
-            <button
-              type="button"
-              className="btn btn-primary btn-sm"
-              onClick={() => setOpen(true)}
-            >
+            <button type="button" className="btn btn-primary btn-sm" onClick={() => setOpen(true)}>
               Entrar (admin)
             </button>
           )}
-          <button type="button" className="icon-btn" aria-hidden>
-            <span className="material-symbols-outlined">notifications</span>
+          <button type="button" className="icon-btn" aria-label="Notificações">
+            <span className="material-symbols-outlined" aria-hidden>
+              notifications
+            </span>
           </button>
-          <button type="button" className="icon-btn" aria-hidden>
-            <span className="material-symbols-outlined">settings</span>
+          <button type="button" className="icon-btn" aria-label="Configurações">
+            <span className="material-symbols-outlined" aria-hidden>
+              settings
+            </span>
           </button>
         </div>
       </header>
 
       {open && (
-        <div
-          className="login-overlay"
-          role="presentation"
-          onClick={() => setOpen(false)}
-        >
+        <div className="login-overlay" role="presentation" onClick={() => setOpen(false)}>
           <div
             className="login-dialog card"
             role="dialog"
@@ -135,11 +184,7 @@ export const TopAppBar = ({ title }) => {
                 <button type="submit" className="btn btn-primary">
                   Entrar
                 </button>
-                <button
-                  type="button"
-                  className="btn btn-secondary"
-                  onClick={() => setOpen(false)}
-                >
+                <button type="button" className="btn btn-secondary" onClick={() => setOpen(false)}>
                   Cancelar
                 </button>
               </div>
@@ -155,8 +200,20 @@ export const Card = ({ children, className = '' }) => (
   <div className={`card ${className}`}>{children}</div>
 );
 
-export const Button = ({ children, variant = 'primary', onClick, ...props }) => (
-  <button className={`btn btn-${variant}`} onClick={onClick} {...props}>
+export const Button = ({
+  children,
+  variant = 'primary',
+  onClick,
+  className = '',
+  type = 'button',
+  ...props
+}) => (
+  <button
+    type={type}
+    className={['btn', `btn-${variant}`, className].filter(Boolean).join(' ')}
+    onClick={onClick}
+    {...props}
+  >
     {children}
   </button>
 );
@@ -179,7 +236,7 @@ export const Select = ({ label, value, onChange, options, ...props }) => (
     {label && <label>{label}</label>}
     <select value={value} onChange={onChange} {...props}>
       <option value="">Selecione...</option>
-      {options.map(opt => (
+      {options.map((opt) => (
         <option key={opt.id} value={opt.id}>
           {opt.label}
         </option>
