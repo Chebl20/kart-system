@@ -11,7 +11,8 @@ const api = axios.create({
 
 api.interceptors.request.use((config) => {
   const token = sessionStorage.getItem('kart_token');
-  if (token) {
+  // Não adicionar token em requisições de login
+  if (token && !config.url?.includes('/auth/login')) {
     config.headers.Authorization = `Bearer ${token}`;
   }
   return config;

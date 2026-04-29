@@ -65,9 +65,9 @@ export const ResultadosPage = () => {
     e.preventDefault();
     
     const resultadosParaAdicionar = Object.entries(resultadosRapido).map(([piloto_id, posicao]) => ({
-      piloto_id: parseInt(piloto_id),
-      posicao: parseInt(posicao)
-    }));
+      piloto_id: String(piloto_id),
+      posicao: parseInt(posicao, 10)
+    })).filter((r) => Number.isFinite(r.posicao) && r.posicao >= 1);
 
     if (resultadosParaAdicionar.length === 0) {
       setError('Adicione pelo menos um piloto com uma posição');
@@ -77,7 +77,7 @@ export const ResultadosPage = () => {
     try {
       for (const resultado of resultadosParaAdicionar) {
         await adicionarResultado({
-          corrida_id: parseInt(corridaSelecionada),
+          corrida_id: String(corridaSelecionada),
           piloto_id: resultado.piloto_id,
           posicao: resultado.posicao
         });
@@ -99,8 +99,8 @@ export const ResultadosPage = () => {
     }
   };
 
-  const pilotosCorrida = resultados.map(r => r.piloto_id);
-  const pilotosDisponiveis = pilotos.filter(p => !pilotosCorrida.includes(p.id));
+  const pilotosCorrida = resultados.map((r) => String(r.piloto_id));
+  const pilotosDisponiveis = pilotos.filter((p) => !pilotosCorrida.includes(String(p.id)));
   const posicoesCupadas = Object.values(resultadosRapido).map(p => parseInt(p)).filter(p => p);
 
   return (
@@ -292,7 +292,7 @@ export const ResultadosPage = () => {
                           .filter(([_, posicao]) => posicao)
                           .sort(([_a, posA], [_b, posB]) => parseInt(posA) - parseInt(posB))
                           .map(([pilotoId, posicao]) => {
-                            const piloto = pilotos.find(p => p.id === parseInt(pilotoId));
+                            const piloto = pilotos.find((p) => String(p.id) === String(pilotoId));
                             const pontos = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1][parseInt(posicao) - 1] || 0;
                             return (
                               <div key={pilotoId} style={{
@@ -393,7 +393,7 @@ export const ResultadosPage = () => {
                     value={Object.keys(resultadosRapido).length > 0 ? Object.keys(resultadosRapido)[0] : ''}
                     onChange={(e) => {
                       if (e.target.value) {
-                        const pilotoId = parseInt(e.target.value);
+                        const pilotoId = e.target.value;
                         setResultadosRapido({ [pilotoId]: '' });
                       }
                     }}

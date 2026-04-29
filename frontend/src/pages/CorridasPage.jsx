@@ -7,15 +7,13 @@ import '../styles/pages.css';
 export const CorridasPage = () => {
   const { isAdmin } = useAuth();
   const [corridas, setCorridas] = useState([]);
-  const [formData, setFormData] = useState({ nome: '', data: '', categoria: 'SPRINT' });
+  const [formData, setFormData] = useState({ nome: '', data: '', categoria: 'KART' });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [editingId, setEditingId] = useState(null);
 
   const categorias = [
-    { id: 'SPRINT', label: 'SPRINT' },
-    { id: 'ENDURANCE', label: 'ENDURANCE' },
-    { id: 'STREET', label: 'STREET' }
+    { id: 'KART', label: 'KART' }
   ];
 
   useEffect(() => {
@@ -49,7 +47,7 @@ export const CorridasPage = () => {
       } else {
         await criarCorrida(formData);
       }
-      setFormData({ nome: '', data: '', categoria: 'SPRINT' });
+      setFormData({ nome: '', data: '', categoria: 'KART' });
       setEditingId(null);
       await carregarCorridas();
       setError('');
@@ -126,7 +124,7 @@ export const CorridasPage = () => {
                     type="button"
                     variant="secondary"
                     onClick={() => {
-                      setFormData({ nome: '', data: '', categoria: 'SPRINT' });
+                      setFormData({ nome: '', data: '', categoria: 'KART' });
                       setEditingId(null);
                     }}
                   >

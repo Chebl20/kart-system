@@ -1,3 +1,4 @@
+.env
 node_modules/
 dist/
 .env.local
@@ -11,3 +12,4 @@ pnpm-debug.log*
 .vscode
 .idea
 kart.db
+.cursor/

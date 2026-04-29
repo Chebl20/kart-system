@@ -11,7 +11,7 @@ Sistema web completo para gerenciamento de corridas de kart com ranking automát
 ✅ **Gerenciamento de Corridas**
 - Criar corridas com data e categoria
 - Editar e deletar eventos
-- Categorias: SPRINT, ENDURANCE, STREET
+- Categorias: KART, ENDURANCE, STREET
 
 ✅ **Sistema de Pontuação F1**
 - 1º lugar: 25 pontos
@@ -45,7 +45,8 @@ Sistema web completo para gerenciamento de corridas de kart com ranking automát
 
 **Backend:**
 - Node.js + Express
-- SQLite3
+- MongoDB
+- JWT Authentication
 - CORS, Body Parser
 
 **Frontend:**
@@ -53,6 +54,10 @@ Sistema web completo para gerenciamento de corridas de kart com ranking automát
 - Vite
 - Axios
 - Material Design Icons
+
+**Infrastructure:**
+- Docker & Docker Compose
+- Nginx (reverse proxy)
 
 ## 📁 Estrutura do Projeto
 
@@ -145,7 +150,69 @@ npm run dev
 
 O frontend estará rodando em `http://localhost:3000`
 
-## 📱 Funcionalidades por Página
+## � Deploy com Docker (Recomendado para Produção)
+
+### Deploy Local com Docker Compose
+
+1. Certifique-se de ter Docker e Docker Compose instalados
+
+2. Configure as variáveis de ambiente (opcional):
+```bash
+cp .env.example .env
+# Edite .env com suas configurações
+```
+
+3. Suba os containers:
+```bash
+docker-compose up -d
+```
+
+4. Acesse a aplicação:
+- Frontend: `http://localhost:3000`
+- Backend API: `http://localhost:5000/api`
+
+5. Para parar os containers:
+```bash
+docker-compose down
+```
+
+### Deploy no Coolify
+
+1. **Configure seu repositório** no Coolify (GitHub, GitLab, etc.)
+
+2. **Crie uma nova aplicação** no Coolify:
+   - Tipo: Docker Compose
+   - Repositório: Seu repositório do kart-system
+
+3. **Configure as variáveis de ambiente** no Coolify:
+   ```
+   MONGODB_URI=mongodb://mongodb:27017/kart
+   MONGODB_DB=kart
+   JWT_SECRET=sua-chave-secreta-producao
+   ADMIN_USERNAME=admin
+   ADMIN_PASSWORD=sua-senha-segura
+   PORT=5000
+   ```
+
+4. **Deploy automático** - O Coolify irá:
+   - Buildar as imagens Docker
+   - Iniciar MongoDB
+   - Iniciar o Backend
+   - Iniciar o Frontend com Nginx
+   - Configurar o proxy reverso automaticamente
+
+5. **Acesse sua aplicação** através da URL fornecida pelo Coolify
+
+### Estrutura Docker
+
+O projeto usa 3 containers:
+- **mongodb**: Banco de dados MongoDB 7
+- **backend**: API Node.js/Express na porta 5000
+- **frontend**: React build estático servido por Nginx na porta 80
+
+O Nginx no frontend faz proxy das requisições `/api` para o backend.
+
+## � Funcionalidades por Página
 
 ### 1️⃣ Pilotos
 - Cadastrar novos pilotos
@@ -218,11 +285,11 @@ O sistema utiliza um design dark theme inspirado na Formula 1, com:
 
 ## 💾 Banco de Dados
 
-O sistema utiliza **SQLite3** com as seguintes tabelas:
+O sistema utiliza **MongoDB** com as seguintes coleções:
 
-- **pilotos**: id, nome, pontos, criado_em
-- **corridas**: id, nome, data, categoria, criada_em
-- **resultados**: id, corrida_id, piloto_id, posicao, pontos, criado_em
+- **pilotos**: _id, nome, criado_em
+- **corridas**: _id, nome, data, categoria, criada_em
+- **resultados**: _id, corrida_id, piloto_id, posicao, pontos, criado_em
 
 ## 🐛 Troubleshooting
 

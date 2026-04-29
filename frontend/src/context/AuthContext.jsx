@@ -8,11 +8,20 @@ export function AuthProvider({ children }) {
   const [username, setUsername] = useState(() => sessionStorage.getItem('kart_username'));
 
   const login = useCallback(async (user, pass) => {
-    const { data } = await loginApi(user, pass);
-    sessionStorage.setItem('kart_token', data.token);
-    sessionStorage.setItem('kart_username', data.username);
-    setToken(data.token);
-    setUsername(data.username);
+    try {
+      const { data } = await loginApi(user, pass);
+      sessionStorage.setItem('kart_token', data.token);
+      sessionStorage.setItem('kart_username', data.username);
+      setToken(data.token);
+      setUsername(data.username);
+    } catch (err) {
+      // Limpar sessionStorage em caso de erro de login
+      sessionStorage.removeItem('kart_token');
+      sessionStorage.removeItem('kart_username');
+      setToken(null);
+      setUsername(null);
+      throw err;
+    }
   }, []);
 
   const logout = useCallback(() => {
